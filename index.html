@@ -1,10 +1,736 @@
-<!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Pennywise — Expense Tracker</title><link rel="stylesheet" href="style.css"></head>
-<body><div class="app"><header class="topbar"><a class="brand" href="#">pennywise<span>.</span></a><div class="header-right"><span class="date-chip" id="today"></span><button id="themeToggle" class="icon-btn" aria-label="Toggle dark mode">☾</button></div></header>
-<main class="container"><section class="intro"><div><p class="eyebrow">YOUR MONEY, MADE CLEAR</p><h1>Know where it <span>goes.</span></h1><p class="muted">A little awareness can make a big difference.</p></div><div class="month-select"><label for="monthFilter">View month</label><input id="monthFilter" type="month"></div></section>
-<section class="summary-grid"><article class="summary-card balance-card"><div class="summary-label"><span class="summary-icon">◈</span><span>Current balance</span></div><strong id="balance">₹0.00</strong><small>Income minus expenses</small><div class="balance-decoration">₹</div></article><article class="summary-card"><div class="summary-label"><span class="summary-icon income-icon">↗</span><span>Total income</span></div><strong id="income">₹0.00</strong><small class="green-text">Money coming in</small><div class="mini-chart income-chart"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article><article class="summary-card"><div class="summary-label"><span class="summary-icon expense-icon">↘</span><span>Total expenses</span></div><strong id="expenses">₹0.00</strong><small class="red-text">Money going out</small><div class="mini-chart expense-chart"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></div></article></section>
-<div class="content-grid"><section class="panel form-panel"><div class="panel-title"><div><h2 id="formHeading">Add transaction</h2><p class="muted">Record income or an expense.</p></div><span class="plus-badge">＋</span></div><form id="transactionForm"><input type="hidden" id="transactionId"><div class="type-switch"><label><input type="radio" name="type" value="expense" checked><span>↘ Expense</span></label><label><input type="radio" name="type" value="income"><span>↗ Income</span></label></div><label for="amount">Amount (₹)</label><div class="amount-input"><span>₹</span><input id="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required></div><p class="field-error" id="amountError"></p><label for="description">Description</label><input id="description" maxlength="100" placeholder="e.g. Grocery shopping" required><p class="field-error" id="descriptionError"></p><div class="two-fields"><div><label for="category">Category</label><select id="category"><option>Food</option><option>Transport</option><option>Shopping</option><option>Bills</option><option>Education</option><option>Health</option><option>Salary</option><option>Freelance</option><option>Entertainment</option><option>Other</option></select></div><div><label for="date">Date</label><input id="date" type="date" required></div></div><div class="form-buttons"><button type="submit" class="btn primary" id="saveButton">＋ Add transaction</button><button type="button" class="btn secondary" id="cancelEdit" hidden>Cancel</button></div></form></section>
-<section class="panel history-panel"><div class="history-heading"><div><h2>Transaction history</h2><p class="muted">Your latest money moves.</p></div><span class="count-badge" id="transactionCount">0 records</span></div><div class="history-filters"><input type="search" id="search" placeholder="⌕ Search transactions..."><select id="typeFilter"><option value="all">All types</option><option value="income">Income</option><option value="expense">Expenses</option></select><select id="categoryFilter"><option value="all">All categories</option><option>Food</option><option>Transport</option><option>Shopping</option><option>Bills</option><option>Education</option><option>Health</option><option>Salary</option><option>Freelance</option><option>Entertainment</option><option>Other</option></select></div><div id="transactions" class="transactions"></div><div id="empty" class="empty"><span>◈</span><h3>No transactions found</h3><p>Add your first transaction or adjust the filters.</p></div><div class="history-footer"><span>Stored locally on this device</span><button id="exportCsv" class="text-button">Export CSV ↓</button></div></section></div>
-<footer>Spend thoughtfully. Save intentionally. <span>Made with care ✦</span></footer></main></div>
-<dialog id="confirmDialog"><p>Delete this transaction?</p><div><button id="confirmDelete" class="btn danger">Delete</button><button id="cancelDelete" class="btn secondary">Cancel</button></div></dialog>
-<script src="script.js"></script></body></html>
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Garima Kumari | Portfolio</title>
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f8f9fc;
+            color: #25243a;
+            line-height: 1.6;
+        }
+
+        header {
+            background: #ffffff;
+            padding: 18px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 12px #00000012;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 23px;
+            font-weight: bold;
+            color: #6c4ee3;
+        }
+
+        nav {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #33334d;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        nav a:hover {
+            color: #6c4ee3;
+        }
+
+        section {
+            padding: 75px 8%;
+            scroll-margin-top: 75px;
+        }
+
+        .hero {
+            min-height: 85vh;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 40px;
+            background: linear-gradient(135deg, #f1edff, #ffffff);
+        }
+
+        .hero-content {
+            flex: 1;
+        }
+
+        .hero-content .tag {
+            color: #6c4ee3;
+            font-weight: bold;
+            letter-spacing: 1px;
+        }
+
+        h1 {
+            font-size: clamp(34px, 5vw, 58px);
+            line-height: 1.2;
+            margin: 15px 0;
+        }
+
+        h1 span {
+            color: #6c4ee3;
+        }
+
+        .hero p {
+            color: #66667c;
+            max-width: 560px;
+            margin-bottom: 25px;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 20px;
+            background: #6c4ee3;
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            border: 2px solid #6c4ee3;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .btn:hover {
+            background: #5234c5;
+            border-color: #5234c5;
+            transform: translateY(-3px);
+        }
+
+        .btn-outline {
+            background: transparent;
+            color: #6c4ee3;
+        }
+
+        .btn-outline:hover {
+            color: white;
+        }
+
+        .hero-card {
+            width: 280px;
+            min-width: 220px;
+            height: 280px;
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 15px 45px #6c4ee326;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border: 1px solid #eee8ff;
+        }
+
+        .avatar {
+            width: 110px;
+            height: 110px;
+            background: #e8e0ff;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 50px;
+            margin-bottom: 15px;
+        }
+
+        .hero-card h3 {
+            color: #6c4ee3;
+        }
+
+        .hero-card p {
+            margin: 5px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .section-title h2 {
+            font-size: 32px;
+            margin-bottom: 8px;
+        }
+
+        .section-title p {
+            color: #77778a;
+        }
+
+        .about-box {
+            max-width: 850px;
+            margin: auto;
+            background: white;
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 5px 25px #00000008;
+        }
+
+        .about-box p {
+            color: #626277;
+            margin-bottom: 15px;
+        }
+
+        .details {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .detail {
+            background: #f4f1ff;
+            padding: 14px;
+            border-radius: 10px;
+        }
+
+        .detail strong {
+            color: #6c4ee3;
+        }
+
+        .skills {
+            background: #f0edff;
+        }
+
+        .skill-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 20px;
+        }
+
+        .skill-card {
+            background: white;
+            padding: 25px 15px;
+            border-radius: 14px;
+            text-align: center;
+            transition: 0.3s;
+            border: 1px solid #ebe6ff;
+        }
+
+        .skill-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 10px 25px #6c4ee31c;
+        }
+
+        .skill-icon {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .skill-card h3 {
+            color: #41346f;
+            margin-bottom: 5px;
+        }
+
+        .skill-card p {
+            font-size: 14px;
+            color: #77778a;
+        }
+
+        .project-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 5px 25px #0000000d;
+            transition: 0.3s;
+        }
+
+        .project-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 12px 30px #6c4ee322;
+        }
+
+        .project-banner {
+            min-height: 140px;
+            background: linear-gradient(135deg, #dcd2ff, #f3efff);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 50px;
+        }
+
+        .project-info {
+            padding: 22px;
+        }
+
+        .project-info h3 {
+            margin-bottom: 10px;
+        }
+
+        .project-info p {
+            color: #707085;
+            font-size: 14px;
+            margin-bottom: 18px;
+        }
+
+        .project-info a {
+            color: #6c4ee3;
+            font-weight: bold;
+            text-decoration: none;
+        }
+
+        .project-info a:hover {
+            text-decoration: underline;
+        }
+
+        .github-box {
+            margin-top: 35px;
+            padding: 25px;
+            border-radius: 15px;
+            background: #25243a;
+            color: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .github-box p {
+            color: #d2d0e0;
+            margin-top: 5px;
+        }
+
+        .contact {
+            background: #f0edff;
+        }
+
+        .contact-box {
+            max-width: 650px;
+            margin: auto;
+            padding: 30px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 5px 25px #0000000d;
+        }
+
+        .contact-box label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: bold;
+        }
+
+        .contact-box input,
+        .contact-box textarea {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 18px;
+            border: 1px solid #d9d6e7;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 15px;
+        }
+
+        .contact-box input:focus,
+        .contact-box textarea:focus {
+            outline: 2px solid #c8baff;
+            border-color: #6c4ee3;
+        }
+
+        .contact-box textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        #formMessage {
+            margin-top: 15px;
+            color: #4930b4;
+        }
+
+        footer {
+            padding: 25px 8%;
+            background: #25243a;
+            color: white;
+            text-align: center;
+        }
+
+        footer a {
+            color: #c8baff;
+            text-decoration: none;
+        }
+
+        @media (max-width: 900px) {
+            header {
+                padding: 16px 5%;
+            }
+
+            section {
+                padding: 60px 5%;
+            }
+
+            .hero {
+                gap: 25px;
+            }
+
+            .skill-grid,
+            .project-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 600px) {
+            header {
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            nav {
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 10px 16px;
+            }
+
+            nav a {
+                font-size: 13px;
+            }
+
+            section {
+                padding: 45px 5%;
+            }
+
+            .hero {
+                min-height: auto;
+                flex-direction: column-reverse;
+                text-align: center;
+                padding-top: 45px;
+                padding-bottom: 50px;
+            }
+
+            .hero-card {
+                width: 220px;
+                min-width: 0;
+                height: 220px;
+            }
+
+            .avatar {
+                width: 85px;
+                height: 85px;
+                font-size: 40px;
+            }
+
+            .buttons {
+                justify-content: center;
+            }
+
+            .details,
+            .skill-grid,
+            .project-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-title h2 {
+                font-size: 27px;
+            }
+
+            .about-box,
+            .contact-box {
+                padding: 22px;
+            }
+
+            .github-box {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .github-box .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <div class="logo">Garima.</div>
+
+        <nav>
+            <a href="#home">Home</a>
+            <a href="#about">About</a>
+            <a href="#skills">Skills</a>
+            <a href="#projects">Projects</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <span class="tag">WELCOME TO MY PORTFOLIO</span>
+
+            <h1>Hi, I'm <span>Garima Kumari</span></h1>
+
+            <h2>Frontend Development Learner</h2>
+
+            <p>
+                I am learning web development and enjoy creating clean,
+                attractive, and responsive websites using HTML, CSS,
+                and JavaScript.
+            </p>
+
+            <div class="buttons">
+                <a href="#projects" class="btn">View My Projects</a>
+
+                <a href="https://github.com/05kumarigarima-oss"
+                   class="btn btn-outline"
+                   target="_blank"
+                   rel="noopener noreferrer">
+                    GitHub Profile ↗
+                </a>
+            </div>
+        </div>
+
+        <div class="hero-card">
+            <div class="avatar">👩🏻‍💻</div>
+            <h3>Garima Kumari</h3>
+            <p>Frontend Developer in Progress</p>
+        </div>
+    </section>
+
+    <section id="about">
+        <div class="section-title">
+            <h2>About Me</h2>
+            <p>Get to know me better</p>
+        </div>
+
+        <div class="about-box">
+            <p>
+                Hello! I'm Garima Kumari, a student interested in
+                frontend development and web technologies.
+            </p>
+
+            <p>
+                I enjoy learning new skills, solving problems, and
+                turning ideas into simple and user-friendly websites.
+                My goal is to improve my coding skills and build
+                projects that work smoothly on different devices.
+            </p>
+
+            <div class="details">
+                <div class="detail">
+                    <strong>Name:</strong> Garima Kumari
+                </div>
+
+                <div class="detail">
+                    <strong>Role:</strong> Frontend Learner
+                </div>
+
+                <div class="detail">
+                    <strong>Interests:</strong> Web Development
+                </div>
+
+                <div class="detail">
+                    <strong>GitHub:</strong>
+                    <a href="https://github.com/05kumarigarima-oss"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        Visit Profile
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="skills" id="skills">
+        <div class="section-title">
+            <h2>My Skills</h2>
+            <p>Technologies and tools I am learning</p>
+        </div>
+
+        <div class="skill-grid">
+            <div class="skill-card">
+                <div class="skill-icon">🌐</div>
+                <h3>HTML5</h3>
+                <p>Creating website structure</p>
+            </div>
+
+            <div class="skill-card">
+                <div class="skill-icon">🎨</div>
+                <h3>CSS3</h3>
+                <p>Styling and responsive layouts</p>
+            </div>
+
+            <div class="skill-card">
+                <div class="skill-icon">⚡</div>
+                <h3>JavaScript</h3>
+                <p>Adding interactive features</p>
+            </div>
+
+            <div class="skill-card">
+                <div class="skill-icon">📱</div>
+                <h3>Responsive Design</h3>
+                <p>Adapting websites to screen sizes</p>
+            </div>
+
+            <div class="skill-card">
+                <div class="skill-icon">🐙</div>
+                <h3>GitHub</h3>
+                <p>Hosting and sharing code</p>
+            </div>
+
+            <div class="skill-card">
+                <div class="skill-icon">💻</div>
+                <h3>VS Code</h3>
+                <p>Writing and editing code</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="projects">
+        <div class="section-title">
+            <h2>My Projects</h2>
+            <p>Some projects from my web development journey</p>
+        </div>
+
+        <div class="project-grid">
+            <div class="project-card">
+                <div class="project-banner">🌐</div>
+
+                <div class="project-info">
+                    <h3>Personal Portfolio</h3>
+
+                    <p>
+                        A responsive personal website to introduce myself,
+                        showcase my skills, and share my projects.
+                    </p>
+
+                    <a href="https://github.com/05kumarigarima-oss/CODSOFT_TASKSNO"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        View Source Code ↗
+                    </a>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="project-banner">✅</div>
+
+                <div class="project-info">
+                    <h3>To-Do List</h3>
+
+                    <p>
+                        A task management interface for adding,
+                        completing, searching, and organizing tasks.
+                    </p>
+
+                    <a href="https://github.com/05kumarigarima-oss/CODSOFT_TASKSNO"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        View Source Code ↗
+                    </a>
+                </div>
+            </div>
+
+            <div class="project-card">
+                <div class="project-banner">💰</div>
+
+                <div class="project-info">
+                    <h3>Expense Tracker</h3>
+
+                    <p>
+                        A finance tracking interface for recording income,
+                        expenses, and viewing the current balance.
+                    </p>
+
+                    <a href="https://github.com/05kumarigarima-oss/CODSOFT_TASKSNO"
+                       target="_blank"
+                       rel="noopener noreferrer">
+                        View Source Code ↗
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="github-box">
+            <div>
+                <h3>Explore My GitHub 🐙</h3>
+                <p>Visit my GitHub profile to explore my code and projects.</p>
+            </div>
+
+            <a href="https://github.com/05kumarigarima-oss/CODSOFT_TASKSNO"
+               class="btn"
+               target="_blank"
+               rel="noopener noreferrer">
+                View CODSOFT Repository ↗
+            </a>
+        </div>
+    </section>
+
+    <section class="contact" id="contact">
+        <div class="section-title">
+            <h2>Contact Me</h2>
+            <p>Have a question? Feel free to send a message.</p>
+        </div>
+
+        <form class="contact-box" id="contactForm">
+            <label for="name">Your Name</label>
+            <input type="text" id="name" placeholder="Enter your name" required>
+
+            <label for="email">Your Email</label>
+            <input type="email" id="email" placeholder="Enter your email" required>
+
+            <label for="message">Your Message</label>
+            <textarea id="message" placeholder="Write your message..." required></textarea>
+
+            <button type="submit" class="btn">Submit Message</button>
+
+            <p id="formMessage" role="status"></p>
+        </form>
+    </section>
+
+    <footer>
+        <p>© 2026 Garima Kumari | Made with 💜</p>
+
+        <p>
+            <a href="https://github.com/05kumarigarima-oss"
+               target="_blank"
+               rel="noopener noreferrer">
+                GitHub Profile
+            </a>
+        </p>
+    </footer>
+
+    <script>
+        const contactForm = document.getElementById("contactForm");
+        const formMessage = document.getElementById("formMessage");
+
+        contactForm.addEventListener("submit", function(event) {
+            event.preventDefault();
+
+            formMessage.textContent =
+                "Thank you! The form works, but messages are not sent yet. Connect a backend or form service to receive them.";
+
+            contactForm.reset();
+        });
+    </script>
+
+</body>
+</html>
+```
