@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PocketPal | Expense Tracker</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f6f4fc;color:#302745}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.app{max-width:1100px;margin:auto;padding:30px 22px}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:30px}
+.logo{font-size:24px;font-weight:bold;color:#7954cf}
+.logo span{color:#e6a64b}
+.small{font-size:13px;color:#887d97}
+h1{font-size:clamp(27px,4vw,38px);margin:8px 0}
+h2{font-size:20px;margin:0 0 20px}
+.cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;margin:25px 0}
+.card,.panel{background:#fff;border:1px solid #ece6f7;border-radius:18px;padding:22px;box-shadow:0 8px 28px #39205b08}
+.card{color:white;border:0}
+.balance{background:linear-gradient(135deg,#8055d9,#a58ae9)}
+.income{background:linear-gradient(135deg,#238c72,#54b69a)}
+.expense{background:linear-gradient(135deg,#dc6e82,#ee9ca8)}
+.card p{margin:0 0 15px;font-size:14px}
+.card strong{font-size:clamp(19px,3vw,28px);overflow-wrap:anywhere}
+.card .symbol{font-size:25px;float:right}
+.layout{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.5fr);gap:20px}
+form{display:grid;gap:13px}
+label{font-size:13px;color:#756a83}
+.field{display:grid;gap:6px}
+input,select{width:100%;min-width:0;padding:12px;border:1px solid #e3daef;border-radius:10px;background:#fff;color:#302745}
+input:focus,select:focus{outline:2px solid #c6b0fa}
+.type{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.type button{padding:11px;border:1px solid #e3daef;background:#fff;border-radius:10px;color:#756a83}
+.type button.active{background:#eee6ff;border-color:#8055d9;color:#7048c3;font-weight:bold}
+.primary{padding:13px;background:#8055d9;color:white;border:0;border-radius:10px}
+.primary:hover{background:#6940bf}
+.secondary{padding:10px;background:#f0eafa;color:#6940a8;border:0;border-radius:9px}
+.toolbar{display:flex;gap:9px;flex-wrap:wrap;margin-bottom:18px}
+.toolbar input{flex:1;min-width:100px}
+.toolbar select{width:auto;max-width:100%}
+.transaction{display:flex;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid #f0ebf7}
+.transaction:last-child{border-bottom:0}
+.category-icon{width:42px;height:42px;display:grid;place-items:center;border-radius:13px;background:#f0eafa;font-size:21px;flex-shrink:0}
+.details{flex:1;min-width:0}
+.details strong{overflow-wrap:anywhere}
+.details small{display:block;color:#91859e;margin-top:5px}
+.amount{text-align:right;font-weight:bold;white-space:nowrap}
+.plus{color:#239b76}
+.minus{color:#dc6477}
+.actions{display:flex;gap:5px;margin-top:6px;justify-content:flex-end}
+.actions button{border:0;background:#f1ecf8;color:#6d538f;border-radius:6px;padding:6px 8px;font-size:12px}
+.empty{text-align:center;padding:35px 10px;color:#9589a3}
+.note{font-size:12px;color:#968ba2;line-height:1.5;margin-top:18px}
+@media(max-width:720px){
+ .app{padding:20px 13px}
+ .cards{gap:8px}
+ .card{padding:14px 11px;border-radius:14px}
+ .card p{font-size:11px}
+ .card .symbol{font-size:17px}
+ .layout{grid-template-columns:1fr}
+ .panel{padding:18px}
+ header{align-items:flex-start}
+ .logo{font-size:21px}
+}
+@media(max-width:390px){
+ .cards{grid-template-columns:1fr}
+ .card{padding:18px}
+ .card p{font-size:13px}
+ .card strong{font-size:25px}
+ .transaction{gap:8px}
+ .category-icon{width:34px;height:34px;font-size:17px}
+ .amount{font-size:13px}
+}
+</style>
+</head>
+<body>
+<div class="app">
+<header>
+ <div class="logo">✿ Pocket<span>Pal</span></div>
+ <div class="small" id="date"></div>
+</header>
+
+<p class="small">YOUR PERSONAL FINANCE SPACE</p>
+<h1>Money overview 💜</h1>
+<p class="small">Every rupee counts. Keep your finances organised.</p>
+
+<div class="cards">
+ <div class="card balance">
+  <span class="symbol">◈</span>
+  <p>Total Balance</p><strong id="balance">₹0.00</strong>
+ </div>
+ <div class="card income">
+  <span class="symbol">↗</span>
+  <p>Total Income</p><strong id="income">₹0.00</strong>
+ </div>
+ <div class="card expense">
+  <span class="symbol">↘</span>
+  <p>Total Expenses</p><strong id="expenses">₹0.00</strong>
+ </div>
+</div>
+
+<div class="layout">
+ <section class="panel">
+  <h2 id="formTitle">＋ Add transaction</h2>
+  <form id="form">
+   <div class="type">
+    <button type="button" class="active" data-type="expense">− Expense</button>
+    <button type="button" data-type="income">＋ Income</button>
+   </div>
+
+   <div class="field">
+    <label for="title">Transaction name</label>
+    <input id="title" placeholder="e.g. College books" maxlength="100" required>
+   </div>
+
+   <div class="field">
+    <label for="amount">Amount (₹)</label>
+    <input id="amount" type="number" min="0.01" step="0.01" placeholder="e.g. 500" required>
+   </div>
+
+   <div class="field">
+    <label for="category">Category</label>
+    <select id="category">
+     <option>Food</option><option>Travel</option>
+     <option>Shopping</option><option>Education</option>
+     <option>Bills</option><option>Health</option>
+     <option>Salary</option><option>Allowance</option>
+     <option>Other</option>
+    </select>
+   </div>
+
+   <div class="field">
+    <label for="txDate">Date</label>
+    <input id="txDate" type="date" required>
+   </div>
+
+   <button class="primary" id="saveBtn">Save transaction</button>
+   <button class="secondary" id="cancelBtn" type="button" hidden>Cancel edit</button>
+  </form>
+  <p class="note">Your transaction data is stored locally in this browser. No bank account is connected.</p>
+ </section>
+
+ <section class="panel">
+  <h2>Transaction history</h2>
+  <div class="toolbar">
+   <input id="search" placeholder="🔎 Search history...">
+   <select id="categoryFilter" aria-label="Filter category">
+    <option value="All">All categories</option>
+    <option>Food</option><option>Travel</option>
+    <option>Shopping</option><option>Education</option>
+    <option>Bills</option><option>Health</option>
+    <option>Salary</option><option>Allowance</option><option>Other</option>
+   </select>
+  </div>
+  <div id="history"></div>
+ </section>
+</div>
+</div>
+
+<script>
+const $=id=>document.getElementById(id);
+const today=new Date();
+$("date").textContent=today.toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"});
+$("txDate").value=[
+ today.getFullYear(),
+ String(today.getMonth()+1).padStart(2,"0"),
+ String(today.getDate()).padStart(2,"0")
+].join("-");
+
+let transactions=[];
+try{
+ transactions=JSON.parse(localStorage.getItem("pocketPalTransactions")||"[]");
+ if(!Array.isArray(transactions))transactions=[];
+}catch(e){transactions=[];}
+
+let type="expense",editId=null;
+const icons={Food:"🍜",Travel:"🚌",Shopping:"🛍️",Education:"📚",Bills:"🧾",Health:"💊",Salary:"💼",Allowance:"💵",Other:"✨"};
+
+document.querySelectorAll("[data-type]").forEach(btn=>{
+ btn.addEventListener("click",()=>{
+  type=btn.dataset.type;
+  document.querySelectorAll("[data-type]").forEach(b=>b.classList.toggle("active",b===btn));
+  if(type==="income"){
+   $("category").value="Salary";
+  }else if(["Salary","Allowance"].includes($("category").value)){
+   $("category").value="Food";
+  }
+ });
+});
+
+function money(n){
+ return "₹"+n.toLocaleString("en-IN",{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function save(){
+ localStorage.setItem("pocketPalTransactions",JSON.stringify(transactions));
+ render();
+}
+function resetForm(){
+ editId=null;
+ $("form").reset();
+ $("txDate").value=[
+  today.getFullYear(),
+  String(today.getMonth()+1).padStart(2,"0"),
+  String(today.getDate()).padStart(2,"0")
+ ].join("-");
+ $("formTitle").textContent="＋ Add transaction";
+ $("saveBtn").textContent="Save transaction";
+ $("cancelBtn").hidden=true;
+}
+$("cancelBtn").addEventListener("click",resetForm);
+
+$("form").addEventListener("submit",e=>{
+ e.preventDefault();
+ const title=$("title").value.trim();
+ const amount=Number($("amount").value);
+ const category=$("category").value;
+ const date=$("txDate").value;
+ if(!title||!Number.isFinite(amount)||amount<=0||!date){
+  alert("Please enter a valid name, positive amount and date.");return;
+ }
+ const item={title,amount,category,date,type};
+ if(editId!==null){
+  const index=transactions.findIndex(t=>t.id===editId);
+  if(index!==-1)transactions[index]={...transactions[index],...item};
+ }else{
+  transactions.unshift({id:Date.now()+Math.random(),...item});
+ }
+ resetForm();
+ save();
+});
+
+function render(){
+ const income=transactions.filter(t=>t.type==="income").reduce((s,t)=>s+t.amount,0);
+ const expense=transactions.filter(t=>t.type==="expense").reduce((s,t)=>s+t.amount,0);
+ $("income").textContent=money(income);
+ $("expenses").textContent=money(expense);
+ $("balance").textContent=money(income-expense);
+
+ const q=$("search").value.toLowerCase().trim();
+ const cat=$("categoryFilter").value;
+ const filtered=transactions.filter(t=>
+  t.title.toLowerCase().includes(q)&&
+  (cat==="All"||t.category===cat)
+ );
+ const history=$("history");
+ history.replaceChildren();
+
+ if(!filtered.length){
+  const empty=document.createElement("div");
+  empty.className="empty";
+  empty.textContent=transactions.length?"No matching transactions.":"🌷 No transactions yet. Add your first one!";
+  history.append(empty);return;
+ }
+
+ filtered.forEach(t=>{
+  const row=document.createElement("div");
+  row.className="transaction";
+  const icon=document.createElement("div");
+  icon.className="category-icon";
+  icon.textContent=icons[t.category]||"✨";
+
+  const details=document.createElement("div");
+  details.className="details";
+  const name=document.createElement("strong");
+  name.textContent=t.title;
+  const meta=document.createElement("small");
+  meta.textContent=t.category+" · "+t.date;
+  details.append(name,meta);
+
+  const right=document.createElement("div");
+  const amount=document.createElement("div");
+  amount.className="amount "+(t.type==="income"?"plus":"minus");
+  amount.textContent=(t.type==="income"?"+":"−")+money(t.amount);
+
+  const actions=document.createElement("div");
+  actions.className="actions";
+  const edit=document.createElement("button");
+  edit.textContent="Edit";
+  edit.addEventListener("click",()=>{
+   editId=t.id;
+   $("title").value=t.title;
+   $("amount").value=t.amount;
+   $("category").value=t.category;
+   $("txDate").value=t.date;
+   type=t.type;
+   document.querySelectorAll("[data-type]").forEach(b=>b.classList.toggle("active",b.dataset.type===type));
+   $("formTitle").textContent="✎ Edit transaction";
+   $("saveBtn").textContent="Save changes";
+   $("cancelBtn").hidden=false;
+   $("title").focus();
+   window.scrollTo({top:0,behavior:"smooth"});
+  });
+
+  const del=document.createElement("button");
+  del.textContent="Delete";
+  del.addEventListener("click",()=>{
+   transactions=transactions.filter(x=>x.id!==t.id);
+   if(editId===t.id)resetForm();
+   save();
+  });
+  actions.append(edit,del);
+  right.append(amount,actions);
+  row.append(icon,details,right);
+  history.append(row);
+ });
+}
+$("search").addEventListener("input",render);
+$("categoryFilter").addEventListener("change",render);
+render();
+</script>
+</body>
+</html>
